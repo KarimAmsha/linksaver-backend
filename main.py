@@ -39,10 +39,10 @@ class ResolveResponse(BaseModel):
     success: bool
     platform: str
     title: Optional[str] = None
+    thumbnailUrl: Optional[str] = None
     fileName: Optional[str] = None
     downloadUrl: Optional[str] = None
     message: str
-
 
 DIRECT_VIDEO_EXTENSIONS = (
     ".mp4",
@@ -193,11 +193,12 @@ def resolve_video(
             success=True,
             platform=platform,
             title=None,
+            thumbnailUrl=None,
             fileName=None,
             downloadUrl=url,
             message="Direct video URL detected"
         )
-
+        
     video_id = str(uuid.uuid4())
     output_template = str(DOWNLOAD_DIR / f"{video_id}.%(ext)s")
     ydl_opts = build_ydl_options(output_template)
@@ -220,16 +221,22 @@ def resolve_video(
         title = None
         if isinstance(info, dict):
             title = info.get("title")
+            
+        thumbnail_url = None
+        if isinstance(info, dict):
+            title = info.get("title")
+            thumbnail_url = info.get("thumbnail")
 
         return ResolveResponse(
             success=True,
             platform=platform,
             title=title,
+            thumbnailUrl=thumbnail_url,
             fileName=file_name,
             downloadUrl=download_url,
             message="Video resolved successfully"
         )
-
+        
     except yt_dlp.utils.DownloadError as error:
         raise HTTPException(
             status_code=400,
