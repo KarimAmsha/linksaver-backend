@@ -251,3 +251,15 @@ def resolve_video(
             status_code=500,
             detail=f"Unexpected backend error: {str(error)}"
         )
+        
+        @app.post("/cleanup")
+        def cleanup_endpoint(
+            x_api_key: Optional[str] = Header(default=None)
+        ):
+            require_api_key(x_api_key)
+            cleanup_old_files()
+
+            return {
+                "success": True,
+                "message": "Old files cleaned"
+            }
